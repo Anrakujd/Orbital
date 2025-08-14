@@ -1,55 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title> Rotasi_Revolusi </title>
-	<script src="assets/aframe.min.js"></script>
+  <meta charset="utf-8">
+  <title>Orbit Elips dengan Inklinasi</title>
+  <script src="assets/aframe.min.js"></script>
 </head>
-
 <body>
-	<a-scene>
-		<!--- Asset Management System --->
-		<a-assets>
-			<img id="earth-texture" src="img/images.jpg">
-			<img id="moon-texture" src="img/moon.jpg">
-		</a-assets>
-	
-		<!-- camera -->
-		<a-entity position="0 0 8">
-			<a-camera></a-camera>
-		</a-entity>
-				
-		<!-- cahaya -->
-		<a-entity light="type: point; color: #FFFFFF; intensity: 3" position= "5 5 5"></a-entity>
-		
-		<!-- Orbit Group -->
-		<a-entity id="orbit-group"
-					animation="property: rotation; 
-								to:0 360 0; 
-								loop: true; 
-								dur: 10000; 
-								easing: linear">
-		<!--Bumi-->
-		<a-sphere src="#earth-texture" radius="1" position:"0 0 0"></a-sphere>
-		
-		<!--bulan-->
-		<a-entity id="moon"
-					animation="property: rotation;
-								to: 0 360 0;
-								loop: true;
-								dur: 10000;
-								easing: linear">
-			<a-sphere src="#moon-texture" radius="0.3" position="3 0 0"></a-sphere>
-		</a-entity>	
-		
-	</a-scene>
-	
+  <a-scene>
+    <!-- Assets -->
+    <a-assets>
+      <img id="earth-texture" src="img/images.jpg">
+      <img id="moon-texture"  src="img/moon.jpg">
+      <img id="stars-texture" src="img/sky.jpg">
+    </a-assets>
 
+    <!-- Latar ruang angkasa -->
+    <!--a-sky src="#stars-texture"></a-sky-->
 
+    <!-- Matahari (sumber cahaya) -->
+    <a-entity light="type: point; intensity: 7; distance: 50" position="8 6 10"></a-entity>
+
+    <!-- Kamera -->
+    <a-entity position="0 -1 6">
+      <a-camera></a-camera>
+    </a-entity>
+
+    <!-- Bumi (pusat) -->
+    <a-sphere id="earth" src="#earth-texture" radius="1"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+    </a-sphere>
+
+    <!-- Bidang orbit bulan (atur inklinasi di sini) -->
+    <!-- Misal inklinasi 25° terhadap sumbu X, dan RAAN (rotasi garis node) 20° di Y -->
+    <a-entity id="moon-orbit-plane" rotation="25 20 0">
+      <!-- Bulan mengikuti orbit elips di bidang ini -->
+      <a-sphere id="moon" src="#moon-texture" radius="0.3" 
+                elliptical-orbit="a: 3; b: 2; period: 7000; dir: -1" animation="property: rotation; to: 0 360 0; loop: true; dur: 7000; easing: linear">
+      </a-sphere>
+    </a-entity>    
+  </a-scene>
+
+  <script>
+    // Komponen orbit elips
+    // a = semi-major axis, b = semi-minor axis
+    // period (ms per 1 putaran), phaseDeg = fase awal di derajat
+    // (cx,cy,cz) pusat elips (dalam koordinat lokal parent)
+    AFRAME.registerComponent('elliptical-orbit', {
+      schema: {
+        a:        {type: 'number', default: 3},
+        b:        {type: 'number', default: 2},
+        period:   {type: 'number', default: 6000}, // ms
+        phaseDeg: {type: 'number', default: 0},
+        cx:       {type: 'number', default: 0},
+        cy:       {type: 'number', default: 0},
+        cz:       {type: 'number', default: 0},
+		dir:      {type: 'number', default: -1}
+      },
+      init: function () {
+        this.theta0 = THREE.MathUtils.degToRad(this.data.phaseDeg || 0);
+        this.tAccum = 0;
+        // Pastikan posisi awal tepat di elips pada fase awal
+        const d = this.data;
+        const x0 = d.cx + d.a * Math.cos(this.theta0);
+        const z0 = d.cz + d.b * -Math.sin(this.theta0);
+        this.el.object3D.position.set(x0, d.cy, z0);
+      },
+      tick: function (time, dt) {
+        const d = this.data;
+        if (d.period <= 0) return;
+        this.tAccum += dt;
+        const theta = this.theta0 + (this.tAccum / d.period) * Math.PI * 2;
+        const x = d.cx + d.a * Math.cos(theta);
+        const z = d.cz + d.b * -Math.sin(theta);
+        // y tetap di d.cy (bidang orbit datar); kemiringan datang dari rotasi parent
+        this.el.object3D.position.set(x, d.cy, z);
+      }
+    });
+  </script>
 </body>
-
-
 </html>
-
-
-

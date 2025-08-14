@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title> Rotasi_Revolusi </title>
+	<script src="assets/aframe.min.js"></script>
+</head>
+
+<body>
+	<a-scene>
+		<!--- Asset Management System --->
+		<a-assets>
+			<img id="earth-texture" src="img/images.jpg">
+			<img id="moon-texture" src="img/moon.jpg">
+		</a-assets>
+	
+		<!-- camera -->
+		<a-entity position="0 0 8">
+			<a-camera></a-camera>
+		</a-entity>
+				
+		<!-- cahaya -->
+		<a-entity light="type: point; color: #FFFFFF; intensity: 3" position= "5 5 5"></a-entity>
+		
+		<!-- Orbit Group -->
+		<a-entity id="orbit-group"
+					animation="property: rotation; 
+								to:0 360 0; 
+								loop: true; 
+								dur: 10000; 
+								easing: linear">
+		<!--Bumi-->
+		<a-sphere src="#earth-texture" radius="1" position:"0 0 0"></a-sphere>
+		
+		<!--bulan-->
+		<a-entity id="moon"
+					animation="property: rotation;
+								to: 0 360 0;
+								loop: true;
+								dur: 10000;
+								easing: linear">
+			<a-sphere src="#moon-texture" radius="0.3" position="3 0 0"></a-sphere>
+		</a-entity>	
+		
+	</a-scene>
+	
+
+
+</body>
+
+
+</html>
+
+
+

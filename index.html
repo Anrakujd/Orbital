@@ -14,9 +14,6 @@
       <img id="stars-texture" src="img/sky.jpg">
     </a-assets>
 
-    <!-- Latar ruang angkasa -->
-    <!--a-sky src="#stars-texture"></a-sky-->
-
     <!-- Matahari (sumber cahaya) -->
     <a-entity light="type: point; intensity: 7; distance: 50" position="8 6 10"></a-entity>
 
@@ -41,10 +38,6 @@
   </a-scene>
 
   <script>
-    // Komponen orbit elips
-    // a = semi-major axis, b = semi-minor axis
-    // period (ms per 1 putaran), phaseDeg = fase awal di derajat
-    // (cx,cy,cz) pusat elips (dalam koordinat lokal parent)
     AFRAME.registerComponent('elliptical-orbit', {
       schema: {
         a:        {type: 'number', default: 3},
@@ -59,7 +52,6 @@
       init: function () {
         this.theta0 = THREE.MathUtils.degToRad(this.data.phaseDeg || 0);
         this.tAccum = 0;
-        // Pastikan posisi awal tepat di elips pada fase awal
         const d = this.data;
         const x0 = d.cx + d.a * Math.cos(this.theta0);
         const z0 = d.cz + d.b * -Math.sin(this.theta0);
@@ -72,10 +64,10 @@
         const theta = this.theta0 + (this.tAccum / d.period) * Math.PI * 2;
         const x = d.cx + d.a * Math.cos(theta);
         const z = d.cz + d.b * -Math.sin(theta);
-        // y tetap di d.cy (bidang orbit datar); kemiringan datang dari rotasi parent
         this.el.object3D.position.set(x, d.cy, z);
       }
     });
   </script>
 </body>
 </html>
+
